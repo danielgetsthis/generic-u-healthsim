@@ -98,42 +98,39 @@ function writeJsonStore(store) {
   }
 }
 
-export function getAppConfig() {
+function getRawDbConfig() {
   if (!db) {
     const store = readJsonStore();
-    return {
-      ...DEFAULT_CONFIG,
-      ...(store.config || {}),
-      aiConfig: {
-        ...DEFAULT_CONFIG.aiConfig,
-        ...(store.config?.aiConfig || {}),
-      },
-    };
+    return store.config || null;
   }
-
   const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
   const row = stmt.get('app_config');
-  if (!row) {
-    saveAppConfig(DEFAULT_CONFIG);
-    return DEFAULT_CONFIG;
-  }
+  if (!row) return null;
   try {
-    const parsed = JSON.parse(row.value);
-    return {
-      ...DEFAULT_CONFIG,
-      ...parsed,
-      aiConfig: {
-        ...DEFAULT_CONFIG.aiConfig,
-        ...(parsed.aiConfig || {}),
-      },
-    };
+    return JSON.parse(row.value);
   } catch {
-    return DEFAULT_CONFIG;
+    return null;
   }
 }
 
+export function getAppConfig() {
+  const raw = getRawDbConfig();
+  if (!raw) {
+    saveAppConfig(DEFAULT_CONFIG);
+    return DEFAULT_CONFIG;
+  }
+  return {
+    ...DEFAULT_CONFIG,
+    ...raw,
+    aiConfig: {
+      ...DEFAULT_CONFIG.aiConfig,
+      ...(raw.aiConfig || {}),
+    },
+  };
+}
+
 export function saveAppConfig(newConfig) {
-  const current = getAppConfig();
+  const current = getRawDbConfig() || DEFAULT_CONFIG;
   const merged = {
     ...DEFAULT_CONFIG,
     ...current,
