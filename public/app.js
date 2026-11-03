@@ -320,6 +320,19 @@ class HealthSimApp {
         </div>
       </div>
 
+      <div class="dossier-launch-box" style="margin-top: 1rem; margin-bottom: 1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--brand-rausch); font-weight:700;">
+          <span>🎙️ Modality: Pure Voice-Only Encounter</span>
+          <span>Target: ~${scen.durationTargetMinutes} mins</span>
+        </div>
+        <button type="button" class="btn btn-launch-voice" id="startVoiceSessionBtn">
+          🎙️ Start Voice-Only Client Session
+        </button>
+        <button type="button" class="btn btn-outline" id="previewClientVoiceBtn" style="justify-content:center;">
+          🔊 Preview ${scen.client.name}'s Opening Voice
+        </button>
+      </div>
+
       <div class="dossier-section">
         <h4>Referral &amp; Chief Complaint</h4>
         <p><strong>${scen.clinicalDossier.referralSource}:</strong> ${scen.clinicalDossier.chiefComplaint}</p>
@@ -346,19 +359,6 @@ class HealthSimApp {
             .map((obj) => `<li>${obj}</li>`)
             .join('')}
         </ul>
-      </div>
-
-      <div class="dossier-launch-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--brand-rausch); font-weight:700;">
-          <span>🎙️ Modality: Pure Voice-Only Encounter</span>
-          <span>Target: ~${scen.durationTargetMinutes} mins</span>
-        </div>
-        <button type="button" class="btn btn-launch-voice" id="startVoiceSessionBtn">
-          🎙️ Start Voice-Only Client Session
-        </button>
-        <button type="button" class="btn btn-outline" id="previewClientVoiceBtn" style="justify-content:center;">
-          🔊 Preview ${scen.client.name}'s Opening Voice
-        </button>
       </div>
     `;
 
