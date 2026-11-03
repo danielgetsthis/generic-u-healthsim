@@ -50,7 +50,10 @@ function sendJson(res, status, payload) {
 
 export default async function apiHandler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  const pathname = url.pathname;
+  let pathname = url.pathname;
+  if (!pathname.startsWith('/api')) {
+    pathname = '/api' + (pathname.startsWith('/') ? pathname : '/' + pathname);
+  }
   const method = req.method || 'GET';
 
   try {

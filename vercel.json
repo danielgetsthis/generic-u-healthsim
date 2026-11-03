@@ -3,6 +3,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
       "source": "/admin",
       "destination": "/admin.html"
     }
