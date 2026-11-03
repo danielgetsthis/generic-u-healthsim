@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generic U VoiceSim | College of Health &amp; Human Performance</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top-nav">
+    <div class="brand-cluster">
+      <div class="brand-crest" aria-hidden="true">GU</div>
+      <div>
+        <div class="eyebrow">Generic U • College of Health &amp; Human Performance</div>
+        <h1 class="brand-title">HealthSim Studio <span class="dept-pill">Health Education &amp; Behavior</span></h1>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div class="engine-badge" id="activeEngineBadge" title="Voice Encounter Readiness">
+        <span class="status-dot"></span>
+        <span id="activeEngineLabel">Standardized Client Voice Studio • Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <!-- VIEW 1: SCENARIO LIBRARY & PRE-SESSION DOSSIER -->
+    <section id="viewLibrary" class="view-section">
+      <div class="library-layout">
+        <!-- Left Column: Course Filter & Scenario Cards -->
+        <div class="scenario-list-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Explore Mock Client Encounters</h2>
+              <p class="subtitle">Practice real-time voice conversations with standardized clients aligned to NCHEC (CHES) &amp; Motivational Interviewing (MITI 4.2) rubrics.</p>
+            </div>
+            <div class="course-filter-bar" role="group" aria-label="Filter scenarios by Generic U HHP course">
+              <button type="button" class="filter-chip active" data-course="all">All Courses</button>
+              <button type="button" class="filter-chip" data-course="HEB 4233">HEB 4233 • Health Coaching</button>
+              <button type="button" class="filter-chip" data-course="HEB 3102">HEB 3102 • Nutrition &amp; Family</button>
+              <button type="button" class="filter-chip" data-course="HEB 4133">HEB 4133 • Harm Reduction</button>
+              <button type="button" class="filter-chip" data-course="HEB 4232">HEB 4232 • Exercise Therapy</button>
+            </div>
+          </div>
+
+          <div id="scenarioCardsGrid" class="scenario-cards-grid" role="listbox" aria-label="Available Mock Client Scenarios"></div>
+        </div>
+
+        <!-- Right Column: Selected Scenario Clinical Dossier & Voice Launchpad -->
+        <aside class="dossier-panel" aria-live="polite">
+          <div id="dossierContent"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- VIEW 2: ACTIVE VOICE-ONLY SIMULATION STUDIO -->
+    <section id="viewStudio" class="view-section" hidden>
+      <div class="studio-container">
+        <div class="studio-top-bar">
+          <div class="studio-scenario-meta">
+            <span class="course-tag" id="studioCourseTag">HEB 4233</span>
+            <h2 id="studioScenarioTitle">Motivational Interviewing</h2>
+          </div>
+
+          <div class="studio-telemetry">
+            <div class="telemetry-pill">
+              <span class="telemetry-label">Session Timer</span>
+              <strong id="studioTimer">00:00</strong>
+            </div>
+            <div class="telemetry-pill">
+              <span class="telemetry-label">Spoken Turns</span>
+              <strong id="studioTurnCount">0</strong>
+            </div>
+            <div class="telemetry-pill">
+              <span class="telemetry-label">Client Rapport</span>
+              <strong id="studioRapportValue">48/100</strong>
+            </div>
+          </div>
+
+          <div class="studio-end-actions">
+            <button type="button" class="btn btn-ghost-light" id="abortSessionBtn">
+              Back to Scenarios
+            </button>
+            <button type="button" class="btn btn-accent" id="endAndEvaluateBtn">
+              Finish &amp; View Evaluation
+            </button>
+          </div>
+        </div>
+
+        <div class="studio-main-grid">
+          <!-- Center Stage: Pure Voice Visualizer & Client Persona Presence -->
+          <div class="voice-stage-card">
+            <div class="client-presence-header">
+              <div class="client-avatar-lg" id="studioClientAvatar">MV</div>
+              <div class="client-presence-info">
+                <h3 id="studioClientName">Marcus Vance</h3>
+                <p id="studioClientRole">21 • Generic U Junior • Stage: Contemplation</p>
+                <div class="affect-badge-row">
+                  <span class="affect-indicator" id="studioClientAffect">Ambivalent &amp; Slightly Guarded</span>
+                </div>
+              </div>
+              <div class="rapport-meter-box">
+                <div class="rapport-meter-header">
+                  <span>Therapeutic Rapport &amp; Openness</span>
+                  <span id="studioRapportPct">48%</span>
+                </div>
+                <div class="rapport-progress-track">
+                  <div class="rapport-progress-fill" id="studioRapportBar" style="width: 48%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dual-Ring Audio Spectrum Visualizer Canvas -->
+            <div class="visualizer-arena">
+              <canvas id="voiceVisualizerCanvas" width="440" height="280" aria-label="Real-time voice acoustic spectrum visualizer"></canvas>
+              <div class="voice-state-banner" id="voiceStateBanner">
+                Initializing Voice Channel...
+              </div>
+              <p class="live-speech-preview" id="liveSpeechPreview" aria-live="polite"></p>
+            </div>
+
+            <!-- Voice-Only Interaction Controls -->
+            <div class="voice-controls-dock">
+              <button type="button" class="btn-mic-primary" id="micToggleBtn">
+                <span class="mic-icon" aria-hidden="true">🎙️</span>
+                <span id="micBtnLabel">Speak to Client (or Hold Spacebar)</span>
+              </button>
+
+              <button type="button" class="btn btn-studio-util" id="repeatClientBtn" title="Ask the client to repeat their last statement">
+                🔊 Repeat Client Audio
+              </button>
+
+              <label class="caption-toggle-label" title="Toggle live captions for hearing accessibility">
+                <input type="checkbox" id="toggleAccessibilityCaptions" checked />
+                <span>Live Captions</span>
+              </label>
+            </div>
+
+            <div id="accessibilityCaptionBox" class="accessibility-caption-box">
+              <div class="caption-speaker" id="captionSpeakerLabel">Client Statement:</div>
+              <p id="captionTextContent"></p>
+            </div>
+
+            <div id="voiceAlertBanner" class="voice-alert-banner" hidden></div>
+          </div>
+
+          <!-- Right Sidebar: Clinical Brief Reference, Jev Telemetry (Version B) & Spoken Cue Cards -->
+          <aside class="studio-coaching-sidebar">
+            <div id="studioJevPanel" class="jev-live-panel" hidden>
+              <div class="jev-panel-header">
+                <span class="jev-badge">VERSION B • TYPESAFE/JEV-1.13</span>
+                <span class="jev-latency" id="jevLatencyBadge">System-1 Ready</span>
+              </div>
+              <div id="studioJevTelemetryBody" class="jev-telemetry-body">
+                <p class="helper-note" style="margin:0;">
+                  Speak a turn to see live <strong>Jev System-1</strong> <code>choice</code> probabilities, <code>noul</code> (0–1) behavioral gates, and <code>score</code> routing before Gemini Native Audio speaks.
+                </p>
+              </div>
+            </div>
+
+            <details class="studio-disclosure" name="studio-ref" open>
+              <summary>Clinical Spoken Cue Cards (Practice &amp; Mic Fallback)</summary>
+              <div class="disclosure-body">
+                <p class="helper-note">
+                  Speak these skills aloud into your microphone—or click any cue card below to speak that clinical response immediately during testing.
+                </p>
+                <div id="studioCueCardsList" class="cue-cards-list"></div>
+              </div>
+            </details>
+
+            <details class="studio-disclosure" name="studio-ref">
+              <summary>Client Chart &amp; Target Competencies</summary>
+              <div class="disclosure-body" id="studioChartQuickRef"></div>
+            </details>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: RUBRIC-BASED PERFORMANCE EVALUATION REPORT -->
+    <section id="viewEvaluation" class="view-section" hidden>
+      <div class="eval-container">
+        <div class="eval-header-card">
+          <div>
+            <div class="eyebrow">Generic U • College of Health &amp; Human Performance Assessment</div>
+            <h2 id="evalScenarioTitle">Clinical Simulation Evaluation Report</h2>
+            <p id="evalScenarioMeta" class="subtitle"></p>
+          </div>
+          <div class="eval-header-actions">
+            <button type="button" class="btn btn-outline" id="retryScenarioBtn">
+              🎙️ Practice Scenario Again
+            </button>
+            <button type="button" class="btn btn-secondary" id="exportReportBtn">
+              ⬇ Export JSON Report
+            </button>
+            <button type="button" class="btn btn-primary" id="backToLibraryBtn">
+              Back to Scenario Library
+            </button>
+          </div>
+        </div>
+
+        <!-- Score Summary Hero -->
+        <div id="evalJevComparisonBanner" class="jev-comparison-banner" hidden></div>
+
+        <div class="eval-summary-grid">
+          <div class="score-ring-card">
+            <div class="score-circle" id="evalScoreCircle">
+              <span class="score-num" id="evalTotalScore">0</span>
+              <span class="score-denom">/ 100</span>
+            </div>
+            <div class="score-meta">
+              <span class="proficiency-badge" id="evalProficiencyBadge">Evaluating...</span>
+              <p class="stage-shift-line">
+                <strong>TTM Stage Progression:</strong>
+                <span id="evalStageShift"></span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Acoustic & MITI 4.2 Telemetry Cards -->
+          <div class="telemetry-kpi-grid" id="evalKpiGrid"></div>
+        </div>
+
+        <!-- Custom Searchable Disclosure Tabs using hidden="until-found" per modern-web-guidance -->
+        <div class="eval-sections-accordion" id="evalCustomAccordion">
+          <div class="eval-tab-controls" role="group" aria-label="Evaluation Report Sections">
+            <button type="button" class="eval-tab-btn" aria-expanded="true" aria-controls="evalPanelRubric" id="tabBtnRubric">
+              1. HHP Rubric &amp; Coaching Feedback
+            </button>
+            <button type="button" class="eval-tab-btn" aria-expanded="false" aria-controls="evalPanelTranscript" id="tabBtnTranscript">
+              2. Annotated Spoken Turn-by-Turn Analysis
+            </button>
+            <button type="button" class="eval-tab-btn" aria-expanded="false" aria-controls="evalPanelChes" id="tabBtnChes">
+              3. NCHEC (CHES) &amp; MITI 4.2 Competency Matrix
+            </button>
+          </div>
+
+          <!-- Panel 1: Rubric Breakdown -->
+          <div id="evalPanelRubric" class="eval-panel">
+            <div class="eval-panel-inner">
+              <h3>5-Dimension HHP Rubric Breakdown</h3>
+              <div id="evalCriteriaList" class="criteria-list"></div>
+
+              <div class="feedback-columns">
+                <div class="feedback-box feedback-strengths">
+                  <h4>Observed Clinical Strengths</h4>
+                  <ul id="evalStrengthsList"></ul>
+                </div>
+                <div class="feedback-box feedback-growth">
+                  <h4>Priority Growth Areas for Next Session</h4>
+                  <ul id="evalImprovementsList"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 2: Annotated Utterance Transcript (hidden="until-found" so Ctrl+F finds any spoken phrase) -->
+          <div id="evalPanelTranscript" class="eval-panel" hidden="until-found">
+            <div class="eval-panel-inner">
+              <div class="transcript-header-row">
+                <div>
+                  <h3>Utterance-by-Utterance Clinical Micro-Skill Coding</h3>
+                  <p class="subtitle">Every spoken turn is automatically coded for OARS skills, Elicit-Provide-Elicit, and Righting Reflex warnings. Tip: Press Cmd/Ctrl+F anywhere on the page to search inside this transcript even when collapsed.</p>
+                </div>
+              </div>
+              <div id="evalAnnotatedTranscript" class="annotated-transcript-list"></div>
+            </div>
+          </div>
+
+          <!-- Panel 3: CHES & MITI 4.2 Competency Alignment (hidden="until-found") -->
+          <div id="evalPanelChes" class="eval-panel" hidden="until-found">
+            <div class="eval-panel-inner">
+              <h3>HHP Curriculum &amp; NCHEC (CHES) Competency Mapping</h3>
+              <div id="evalChesMatrixContent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

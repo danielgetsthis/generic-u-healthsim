@@ -1,0 +1,11 @@
+{
+  "name": "uf-hhp-voice-sim",
+  "version": "1.0.0",
+  "description": "UF College of Health & Human Performance (HEB) Voice-Only Mock Client & Rubric Evaluation Platform",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/eval-benchmark.js"
+  }
+}

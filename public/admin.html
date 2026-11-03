@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Console | Generic U HealthSim Studio</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module">
+    // Conditional Popover polyfill per modern-web-guidance (persistent-toast-notifications)
+    if (!('popover' in HTMLElement.prototype)) {
+      import('https://unpkg.com/@oddbird/popover-polyfill@latest/dist/popover.min.js');
+    }
+  </script>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="brand-cluster">
+      <div class="brand-crest" aria-hidden="true">GU</div>
+      <div>
+        <div class="eyebrow">Generic U • Hidden Faculty &amp; Developer Console</div>
+        <h1 class="brand-title">HealthSim Admin <span class="dept-pill">SQLite + A/B Architecture Lab</span></h1>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Global A/B Architecture Switcher (persists directly to SQLite) -->
+      <div class="ab-switcher" role="group" aria-label="Global Architecture Mode">
+        <button type="button" class="ab-btn active" id="adminModeBtnA" data-mode="version-a">
+          Version A: Standard
+        </button>
+        <button type="button" class="ab-btn" id="adminModeBtnB" data-mode="version-b">
+          Version B: Jev Hybrid ⚡
+        </button>
+      </div>
+
+      <div class="engine-badge" title="SQLite Database Connection Status">
+        <span class="status-dot"></span>
+        <span id="dbStatusBadge">SQLite Database: Connected</span>
+      </div>
+
+      <a href="/" class="btn btn-outline" style="text-decoration:none;">
+        ↗ Open Student App
+      </a>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <!-- KPI Row -->
+    <section class="admin-kpi-strip" aria-label="Database & Architecture Telemetry">
+      <div class="admin-kpi-card">
+        <div class="kpi-label">Active Global Architecture</div>
+        <div class="kpi-val" id="kpiActiveArch">Version A</div>
+        <div class="subtitle" id="kpiActiveEngineSub">Gemini Native Audio</div>
+      </div>
+      <div class="admin-kpi-card">
+        <div class="kpi-label">Recorded Sessions in SQLite</div>
+        <div class="kpi-val" id="kpiSessionCount">0</div>
+        <div class="subtitle" id="kpiDbPathSub">data/healthsim.sqlite</div>
+      </div>
+      <div class="admin-kpi-card">
+        <div class="kpi-label">Avg Score: Version A vs Version B (Jev)</div>
+        <div class="kpi-val" id="kpiAvgScoreComparison">— / —</div>
+        <div class="subtitle">Side-by-side across all stored sessions</div>
+      </div>
+      <div class="admin-kpi-card">
+        <div class="kpi-label">Custom Scenarios in SQLite</div>
+        <div class="kpi-val" id="kpiCustomScenarioCount">0</div>
+        <div class="subtitle">+ 4 Built-in Generic U HHP Scenarios</div>
+      </div>
+    </section>
+
+    <!-- 2-Column Admin Controls: Left = AI & Jev Settings | Right = Custom Scenario Builder -->
+    <div class="admin-grid-2">
+      <!-- Card 1: Global AI & Jev System-1 Settings -->
+      <section class="admin-card">
+        <div class="eyebrow">Database Table: settings</div>
+        <h2>AI Voice Engine &amp; Jev System-1 Configuration</h2>
+        <p class="subtitle" style="margin-bottom:1.15rem;">
+          Changes saved here are stored in SQLite (<code>data/healthsim.sqlite</code>) and automatically control the main student application at <code>/</code>.
+        </p>
+
+        <form id="adminSettingsForm">
+          <div class="form-group">
+            <label for="adminArchSelect">Active Scoring &amp; Steering Architecture</label>
+            <select id="adminArchSelect">
+              <option value="version-a">Version A: Standard Rule Rubric + Direct Gemini Native Audio</option>
+              <option value="version-b">Version B: Jev System-1 Hybrid (typesafe/jev-1.13 + Gemini Native Audio)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="background:var(--bg-page); padding:0.75rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-light);">
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; margin:0; font-weight:600;">
+              <input type="checkbox" id="adminShowAbBannerToggle" style="width:auto;" />
+              <span>Show Live Jev Telemetry Drawer &amp; A/B Banner inside the Student App</span>
+            </label>
+            <small class="field-hint" style="margin-top:0.25rem;">
+              Leave unchecked to keep all Jev/A/B comparison telemetry strictly inside this Admin Console.
+            </small>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="adminProviderSelect">Conversational AI Provider</label>
+              <select id="adminProviderSelect">
+                <option value="gemini">Google Gemini API (Recommended)</option>
+                <option value="openai">OpenAI API (gpt-4o)</option>
+                <option value="local">Offline Fallback Only</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="adminGeminiModelSelect">Gemini Speed &amp; Model Tier</label>
+              <select id="adminGeminiModelSelect">
+                <option value="auto-fast">Instant Voice Mode — Native Audio / Flash (&lt;1s)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Zero Thinking Delay)</option>
+                <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Deep Reasoning — Slower)</option>
+                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview (Deep Reasoning — Slower)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="adminApiKeyInput">Gemini / OpenAI API Key</label>
+            <span id="adminApiKeyHint" class="hint">Format: AIza... (Google Gemini) or sk-... (OpenAI). Stored in SQLite.</span>
+            <input
+              type="password"
+              id="adminApiKeyInput"
+              placeholder="Paste your Gemini (AIza...) or OpenAI (sk-...) API Key"
+              autocomplete="off"
+              aria-describedby="adminApiKeyHint"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="adminTypesafeKeyInput">TypeSafe Jev API Key — Optional for Hosted <code>typesafe/jev-1.13</code></label>
+            <span id="adminTypesafeHint" class="hint">Optional Bearer token for https://api.typesafe.ai/v1/systemone. If blank, Version B uses the Gemini System-1 + Bayesian Jev kernel.</span>
+            <input
+              type="password"
+              id="adminTypesafeKeyInput"
+              placeholder="Optional: ts-... Bearer key for api.typesafe.ai"
+              autocomplete="off"
+              aria-describedby="adminTypesafeHint"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="adminTtsRateRange">Mock Client Voice Speed (<span id="adminTtsRateVal">1.0x</span>)</label>
+            <input type="range" id="adminTtsRateRange" min="0.8" max="1.25" step="0.05" value="1.0" />
+          </div>
+
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">💾 Save Settings to SQLite</button>
+            <button type="button" class="btn btn-outline" id="adminTestVoiceBtn">🔊 Test Client Voice Output</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Card 2: Custom Scenario Builder (Stored in SQLite) -->
+      <section class="admin-card">
+        <div class="eyebrow">Database Table: custom_scenarios</div>
+        <h2>Host &amp; Manage Custom Mock Client Scenarios</h2>
+        <p class="subtitle" style="margin-bottom:1.15rem;">
+          Create standardized client cases for Generic U HHP courses. Saved scenarios appear immediately in the student library.
+        </p>
+
+        <form id="adminScenarioForm">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="admCourseCode">Course Code</label>
+              <span id="admCourseHint" class="hint">Format: HEB + 4-digit course number (e.g., HEB 4233)</span>
+              <input
+                type="text"
+                id="admCourseCode"
+                value="HEB 4233"
+                required
+                pattern="^[A-Za-z]{2,4}\s?\d{4}[A-Za-z]?$"
+                aria-describedby="admCourseHint"
+                aria-errormessage="admCourseError"
+              />
+              <div id="admCourseError" class="error-msg">
+                <span aria-hidden="true">❌</span> Enter a valid course code (e.g., HEB 4233).
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="admStage">TTM Stage of Change</label>
+              <span class="hint">Client's initial readiness stage</span>
+              <select id="admStage">
+                <option value="Precontemplation">Precontemplation</option>
+                <option value="Contemplation" selected>Contemplation</option>
+                <option value="Preparation">Preparation</option>
+                <option value="Action">Action</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="admTitle">Scenario Title</label>
+            <span id="admTitleHint" class="hint">At least 5 characters describing the clinical coaching topic</span>
+            <input
+              type="text"
+              id="admTitle"
+              placeholder="e.g., Campus Stress &amp; Late-Night Binge Eating"
+              required
+              minlength="5"
+              aria-describedby="admTitleHint"
+              aria-errormessage="admTitleError"
+            />
+            <div id="admTitleError" class="error-msg">
+              <span aria-hidden="true">❌</span> Please enter a scenario title (at least 5 characters).
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="admClientName">Client Full Name &amp; Age</label>
+              <span id="admClientHint" class="hint">Example: Taylor Brooks, 20</span>
+              <input
+                type="text"
+                id="admClientName"
+                placeholder="e.g., Taylor Brooks, 20"
+                required
+                minlength="3"
+                aria-describedby="admClientHint"
+                aria-errormessage="admClientError"
+              />
+              <div id="admClientError" class="error-msg">
+                <span aria-hidden="true">❌</span> Please enter the mock client's name and age.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="admVoiceGender">Client Voice Profile</label>
+              <span class="hint">Select Gemini Native Audio voice timbre</span>
+              <select id="admVoiceGender">
+                <option value="female">Female Voice (Aoede / Kore)</option>
+                <option value="male">Male Voice (Puck / Charon)</option>
+                <option value="neutral">Neutral Voice</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="admComplaint">Chief Complaint &amp; Behavioral Context</label>
+            <span id="admComplaintHint" class="hint">Describe the client's health challenge and psychosocial barriers</span>
+            <textarea
+              id="admComplaint"
+              rows="2"
+              placeholder="Describe the client's health behavior challenge and barriers..."
+              required
+              minlength="10"
+              aria-describedby="admComplaintHint"
+              aria-errormessage="admComplaintError"
+            ></textarea>
+            <div id="admComplaintError" class="error-msg">
+              <span aria-hidden="true">❌</span> Please provide at least 10 characters of clinical context.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="admOpeningLine">Client Spoken Opening Statement</label>
+            <span id="admOpeningHint" class="hint">What the standardized client speaks aloud when the session begins</span>
+            <textarea
+              id="admOpeningLine"
+              rows="2"
+              placeholder="What the mock client says aloud when the session starts..."
+              required
+              minlength="10"
+              aria-describedby="admOpeningHint"
+              aria-errormessage="admOpeningError"
+            ></textarea>
+            <div id="admOpeningError" class="error-msg">
+              <span aria-hidden="true">❌</span> Please enter the client's spoken opening line.
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">+ Save Custom Scenario to SQLite</button>
+        </form>
+
+        <div style="margin-top:1.35rem; border-top:1px solid var(--border-light); padding-top:1rem;">
+          <h4 style="margin:0 0 0.5rem; font-size:0.9rem;">Stored Custom Scenarios</h4>
+          <div id="adminCustomScenariosList"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Section 3: Recorded Student Sessions & Side-by-Side Version A vs Version B (Jev) Comparison -->
+    <section class="admin-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+        <div>
+          <div class="eyebrow">Database Table: sessions</div>
+          <h2>Recorded Sessions &amp; Version A vs. Version B (Jev) Evaluation Log</h2>
+          <p class="subtitle">
+            Every voice session completed in the student app is automatically stored here with both <strong>Version A (Standard)</strong> and <strong>Version B (<code>typesafe/jev-1.13</code>)</strong> evaluations. You can also simulate student personas below to test the database and compare scoring models immediately.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.55rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline btn-sm" data-sim-persona="interrogator">
+            🧪 Simulate "Closed-Q Interrogator"
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" data-sim-persona="lecturer">
+            🧪 Simulate "Righting-Reflex Lecturer"
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-sim-persona="mastery">
+            🧪 Simulate "Mastery MI Coach"
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Scenario &amp; Client</th>
+              <th>Mode Used</th>
+              <th>Turns</th>
+              <th>Open Q Ratio</th>
+              <th>Version A Score</th>
+              <th>Version B (Jev) Score</th>
+              <th>A/B Delta</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminSessionsTableBody">
+            <tr>
+              <td colspan="9" style="text-align:center; color:var(--text-muted); padding:2rem;">
+                Loading sessions from SQLite database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: SESSION A/B INSPECTOR (with closedby="any" per modern-web-guidance) -->
+  <dialog id="sessionInspectDialog" closedby="any" aria-labelledby="inspectDialogTitle" style="max-width:960px; width:94vw;">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <h2 id="inspectDialogTitle">Session A/B Architecture Comparison &amp; Transcript</h2>
+        <button type="button" class="dialog-close-btn" id="closeInspectDialogBtn" aria-label="Close inspector">✕</button>
+      </div>
+      <div class="dialog-body" id="sessionInspectBody" style="max-height:76vh; overflow-y:auto;"></div>
+    </div>
+  </dialog>
+
+  <!-- Persistent Toast Stack using popover="manual" per modern-web-guidance -->
+  <div id="adminToastStack" class="toast-stack" aria-live="polite"></div>
+
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>
